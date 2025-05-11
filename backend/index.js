@@ -72,7 +72,10 @@ app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
   db.query('SELECT * FROM users WHERE username = ?', [username], async (err, results) => {
-    if (err) return res.status(500).json({ error: err });
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
 
     if (results.length === 0) {
       return res.status(401).json({ message: 'Invalid username or password' });
@@ -85,39 +88,61 @@ app.post('/api/login', (req, res) => {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    const token = jwt.sign({ userId: user.id, role: 'user' }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
 
-    res.json({ token, userId: user.id, role: 'user' }); // Always return role as 'user'
+    res.json({ token, userId: user.id, role: user.role });
   });
 });
 
 
 // Apply for Loan
 app.post('/api/loans', (req, res) => {
-  const { userId, loanAmount, name } = req.body;
+  const { userId, loanAmount, purpose } = req.body;
 
-  db.query(
-    'INSERT INTO loans (user_id, loanAmount, name) VALUES (?, ?, ?)',
-    [userId, loanAmount, purpose],
-    (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Failed to apply for loan' });
-      }
-      res.status(200).json({ message: 'Loan application submitted successfully!' });
+  console.log('Request Body:', req.body); // Log the request body
+
+  if (!userId || !loanAmount || !purpose) {
+    console.log('Missing fields:', { userId, loanAmount, purpose }); // Log missing fields
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  // Fetch the username from the users table
+  db.query('SELECT username FROM users WHERE id = ?', [userId], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Failed to fetch username' });
     }
-  );
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const username = results[0].username;
+
+    // Insert the loan application into the loans table
+    db.query(
+      'INSERT INTO loans (user_id, loanAmount, name, purpose) VALUES (?, ?, ?, ?)',
+      [userId, loanAmount, username, purpose], // Store username as name
+      (err) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ message: 'Failed to apply for loan' });
+        }
+        res.status(200).json({ message: 'Loan application submitted successfully!' });
+      }
+    );
+  });
 });
 
 // Fetch Loans for a User
 app.get('/api/loans/:userId', (req, res) => {
   const { userId } = req.params;
 
-  db.query('SELECT * FROM loans WHERE user_id = ?', [userId], (err, results) => {
+  db.query('SELECT id, loanAmount, name, purpose, status FROM loans WHERE user_id = ?', [userId], (err, results) => {
     if (err) {
-      console.error(err);
+      console.error('Database error:', err);
       return res.status(500).json({ message: 'Error fetching loans' });
     }
     res.json(results);
@@ -220,6 +245,7 @@ app.get('/api/loan-counts', (req, res) => {
 });
 
 // Start server
-app.listen(5000, () => {
-  console.log('Backend server running on port 5000');
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Backend server running on port ${PORT}`);
 });

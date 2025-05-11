@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Table, Alert } from 'react-bootstrap';
 
 const AppliedLoans = () => {
   const [loans, setLoans] = useState([]);
@@ -30,29 +31,44 @@ const AppliedLoans = () => {
 
   return (
     <div>
-      <h2>Your Applied Loans</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <h2>Your Loan Applications</h2>
+      {error && <Alert variant="danger">{error}</Alert>}
+
       {loans.length === 0 ? (
-        <p>No loans applied yet.</p>
+        <p>No loan applications found.</p>
       ) : (
-        <table>
+        <Table striped bordered hover responsive>
           <thead>
             <tr>
-              <th>Loan Name</th>
-              <th>Loan Amount</th>
+              <th>#</th>
+              <th>Purpose</th>
+              <th>Amount</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {loans.map((loan) => (
+            {loans.map((loan, index) => (
               <tr key={loan.id}>
-                <td>{loan.name}</td>
-                <td>{loan.loanAmount}</td>
-                <td>{loan.status || 'Pending'}</td>
+                <td>{index + 1}</td>
+                <td>{loan.purpose}</td> {/* Display purpose */}
+                <td>${loan.loanAmount}</td>
+                <td>
+                  <span
+                    className={`badge bg-${
+                      loan.status === 'approved'
+                        ? 'success'
+                        : loan.status === 'rejected'
+                        ? 'danger'
+                        : 'warning'
+                    }`}
+                  >
+                    {loan.status}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       )}
     </div>
   );

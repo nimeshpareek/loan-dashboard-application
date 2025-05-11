@@ -6,8 +6,7 @@ import './styles/user-dashboard.css';
 
 function UserDashboard() {
   const [loans, setLoans] = useState([]);
-  const [loanAmount, setLoanAmount] = useState('');
-  const [loanPurpose, setLoanPurpose] = useState('');
+  const [loanDetails, setLoanDetails] = useState({ loanName: '', loanAmount: '', loanPurpose: '' });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [activeLink, setActiveLink] = useState('apply-loan');
@@ -33,20 +32,19 @@ function UserDashboard() {
     setError('');
 
     try {
-      const userId = localStorage.getItem('userId');
+      const userId = localStorage.getItem('userId'); // Get user ID from localStorage
       await axios.post('http://localhost:5000/api/loans', {
         userId,
-        loanAmount,
-        name: loanPurpose,
+        loanAmount: loanDetails.loanAmount,
+        purpose: loanDetails.loanPurpose, // Send purpose
       });
 
       setMessage('Loan application submitted successfully!');
-      setLoanAmount('');
-      setLoanPurpose('');
+      setLoanDetails({ loanAmount: '', loanPurpose: '' }); // Clear form
       fetchLoans();
     } catch (err) {
-      console.error(err);
-      setError('Failed to apply for loan');
+      console.error('Error applying for loan:', err);
+      setError('Failed to apply for loan'); // Display error message
     }
   };
 
@@ -87,8 +85,8 @@ function UserDashboard() {
                           <Form.Label>Loan Amount</Form.Label>
                           <Form.Control
                             type="number"
-                            value={loanAmount}
-                            onChange={(e) => setLoanAmount(e.target.value)}
+                            value={loanDetails.loanAmount}
+                            onChange={(e) => setLoanDetails({ ...loanDetails, loanAmount: e.target.value })}
                             placeholder="Enter loan amount"
                             required
                           />
@@ -98,8 +96,8 @@ function UserDashboard() {
                           <Form.Label>Loan Purpose</Form.Label>
                           <Form.Control
                             type="text"
-                            value={loanPurpose}
-                            onChange={(e) => setLoanPurpose(e.target.value)}
+                            value={loanDetails.loanPurpose}
+                            onChange={(e) => setLoanDetails({ ...loanDetails, loanPurpose: e.target.value })}
                             placeholder="e.g., Car, Education"
                             required
                           />
