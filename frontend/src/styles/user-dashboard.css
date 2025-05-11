@@ -1,0 +1,63 @@
+/* Ensures the main content is centered and sidebar is fixed on the left */
+.user-dashboard {
+  /* display: flex; */
+  height: 100vh;
+  background-color: #f4f6f8;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 240px;
+  background-color: #fff;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Main Content Area */
+.main-content {
+  flex-grow: 1;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 600px; /* Limit the width of the card */
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.card-body {
+  padding: 30px;
+}
+
+/* Ensure the sidebar links and content are styled properly */
+.sidebar-link {
+  text-decoration: none;
+  color: #555;
+  font-size: 16px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-link:hover,
+.sidebar-link:focus {
+  background-color: #007bff;
+  color: white;
+}
+
+@media (min-width: 768px) {
+    .col-md-3 {
+        flex: 0 0 auto;
+        width: 25%;
+        height: 100vh;
+    }
+}

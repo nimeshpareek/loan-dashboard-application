@@ -1,0 +1,11 @@
+.verifier-dashboard {
+  padding-top: 40px;
+}
+
+.verifier-dashboard .list-group-item {
+  margin-bottom: 20px;
+}
+
+.verifier-dashboard .btn {
+  margin-right: 10px;
+}
